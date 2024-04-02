@@ -183,23 +183,20 @@ exports.JavaScriptRunner = async (code, input) => {
         const filePath = path.join(__dirname, "../d.js");
         console.log("javascript file -> " + filePath);
         const inputPath = path.join(__dirname, "../inputd.txt");
-        exec(
-          "node " + filePath + " < " + inputPath,
-          (err, stdout, stderr) => {
-            if (err) {
-              console.error(`exec error: ${err}`);
-              resolve({
-                err: true,
-                output: err,
-                error: stderr,
-              });
-            }
+        exec("node " + filePath + " < " + inputPath, (err, stdout, stderr) => {
+          if (err) {
+            console.error(`exec error: ${err}`);
             resolve({
-              err: false,
-              output: stdout,
+              err: true,
+              output: err,
+              error: stderr,
             });
           }
-        );
+          resolve({
+            err: false,
+            output: stdout,
+          });
+        });
       })
       .catch(() => {
         console.log("error saving javascript file \n" + saveFileRes);
@@ -221,22 +218,22 @@ exports.JavaRunner = async (code, input) => {
     const fileName = "Main.java";
     fs.writeFile(fileName, code, (err) => {
       if (err) {
-        console.error('Error writing Java file:', err);
-        reject({ err: true, output: 'Error writing Java file' });
+        console.error("Error writing Java file:", err);
+        reject({ err: true, output: "Error writing Java file" });
         return;
       }
 
       fs.writeFile("input.txt", input, (err) => {
         if (err) {
-          console.error('Error writing input file:', err);
-          reject({ err: true, output: 'Error writing input file' });
+          console.error("Error writing input file:", err);
+          reject({ err: true, output: "Error writing input file" });
           return;
         }
 
         console.log("Java file written:", fileName);
         exec("javac " + fileName, (err, stdout, stderr) => {
           if (err) {
-            console.error('Compilation error:', err);
+            console.error("Compilation error:", err);
             resolve({ err: true, output: err });
             return;
           }
@@ -245,7 +242,7 @@ exports.JavaRunner = async (code, input) => {
 
           exec("java Main < input.txt", (err, stdout, stderr) => {
             if (err) {
-              console.error('Execution error:', err);
+              console.error("Execution error:", err);
               resolve({ err: true, output: err });
               return;
             }
