@@ -1,0 +1,6 @@
+{
+    "code": "#include <iostream>\n\nint main() {\n    std::cout << \"Hello World!\";\n    return 0;\n}",
+    "input": "null",
+    "lang": "cpp"
+  }
+  
