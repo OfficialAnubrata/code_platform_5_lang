@@ -6,4 +6,4 @@ c: gcc<br>
 cpp: g++<br>
 javascript: nodejs<br>
 
-platform: linux
+platform: Ubuntu
