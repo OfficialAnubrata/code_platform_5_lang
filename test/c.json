@@ -1,6 +1,17 @@
-{
+[
+  {
     "code": "#include <stdio.h>\nint main() {\n   // printf() displays the string inside quotation\n   printf(\"Hello, World!\");\n   return 0;\n}",
     "input": "null",
     "lang": "c"
+  },
+  {
+    "code": "#include <stdio.h>\n\nint main() {\n  int n, reverse = 0, remainder;\n\n  scanf(\"%d\", &n);\n\n  while (n != 0) {\n    remainder = n % 10;\n    reverse = reverse * 10 + remainder;\n    n /= 10;\n  }\n\n  printf(\"Reversed number = %d\", reverse);\n\n  return 0;\n}",
+    "input": "2435",
+    "lang": "c"
+  },
+  {
+    "code": "#include <stdio.h>\n\nstruct Distance {\n   int feet;\n   float inch;\n} d1, d2, result;\n\nint main() {\n   // take first distance input\n   scanf(\"%d\", &d1.feet);\n   scanf(\"%f\", &d1.inch);\n\n   // take second distance input\n   scanf(\"%d\", &d2.feet);\n   scanf(\"%f\", &d2.inch);\n\n   // adding distances\n   result.feet = d1.feet + d2.feet;\n   result.inch = d1.inch + d2.inch;\n\n   // convert inches to feet if greater than 12\n   while (result.inch >= 12.0) {\n      result.inch = result.inch - 12.0;\n      ++result.feet;\n   }\n   printf(\"\\nSum of distances = %d'-%.1f\\\"\", result.feet, result.inch);\n   return 0;\n}",
+    "input": "23\n8.6\n34\n2.4",
+    "lang": "c"
   }
-  
+]

@@ -1,5 +1,20 @@
+[
 {
     "code": "print(2+24)",
     "input": "null",
     "lang": "python"
+},
+{
+
+    "code": "year = int(input(\"Enter a year: \"))\n\nif (year % 400 == 0) and (year % 100 == 0):\n    print(\"{0} is a leap year\".format(year))\n\nelif (year % 4 == 0) and (year % 100 != 0):\n    print(\"{0} is a leap year\".format(year))\n\nelse:\n    print(\"{0} is not a leap year\".format(year))",
+    "input": "2001",
+    "lang": "python"
+    
+
+},
+{
+    "code": "# Program to multiply two matrices using nested loops\n\n# 3x3 matrix\nX = [[12,7,3],\n    [4 ,5,6],\n    [7 ,8,9]]\n# 3x4 matrix\nY = [[5,8,1,2],\n    [6,7,3,0],\n    [4,5,9,1]]\n# result is 3x4\nresult = [[0,0,0,0],\n         [0,0,0,0],\n         [0,0,0,0]]\n\n# iterate through rows of X\nfor i in range(len(X)):\n   # iterate through columns of Y\n   for j in range(len(Y[0])):\n       # iterate through rows of Y\n       for k in range(len(Y)):\n           result[i][j] += X[i][k] * Y[k][j]\n\nfor r in result:\n   print(r)",
+    "input": "null",
+    "lang": "python"
 }
+]
