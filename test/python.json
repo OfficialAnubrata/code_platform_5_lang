@@ -1,5 +1,5 @@
 {
-    "code": "print(2+24)\n",
-    "input": "5\n6",
+    "code": "print(2+24)",
+    "input": "null",
     "lang": "python"
-  }
+}
