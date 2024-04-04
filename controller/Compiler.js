@@ -36,6 +36,7 @@ exports.CplusplusRunner = async (code, input) => {
           const cppstarttime = Date.now()
           exec("sudo ./a.out < " + "inputb.txt", (err, stdout, stderr) => {
             const cppelapsedtime = Date.now() - cppstarttime
+            console.log(cppelapsedtime);
             if (err) {
               console.log("ERROR " + err);
               resolve({
