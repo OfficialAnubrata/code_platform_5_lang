@@ -1,6 +1,7 @@
 const fs = require("fs");
 const { exec } = require("child_process");
 const path = require("path");
+const Logger = require("nodemon/lib/utils/log");
 
 exports.CplusplusRunner = async (code, input) => {
   const res = {
@@ -95,6 +96,7 @@ exports.CRunner = async (code, input) => {
           const cstarttime = Date.now()
           exec("./a.out < " + "inputa.txt", (err, stdout, stderr) => {
             const celapsedtime = Date.now() - cstarttime
+            console.log(celapsedtime);
             if (err) {
               console.log("error " + err);
               resolve({
@@ -259,6 +261,7 @@ exports.JavaRunner = async (code, input) => {
           const javastarttime = Date.now()
           exec("java Main < input.txt", (err, stdout, stderr) => {
             const javaelapsedtime = Date.now() - javastarttime
+            console.log(javaelapsedtime);
             if (err) {
               console.error("Execution error:", err);
               resolve({ err: true, output: err });
