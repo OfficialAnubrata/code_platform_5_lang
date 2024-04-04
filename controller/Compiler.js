@@ -22,6 +22,7 @@ exports.CplusplusRunner = async (code, input) => {
         console.log("cpp file -> " + filePath);
 
         exec("sudo g++ " + filePath, (err, stdout, stderr) => {
+
           if (err) {
             console.error(`exec error: ${err}`);
             resolve({
@@ -32,7 +33,9 @@ exports.CplusplusRunner = async (code, input) => {
           }
 
           console.log("compilation done..");
+          const cppstarttime = Date.now()
           exec("sudo ./a.out < " + "inputb.txt", (err, stdout, stderr) => {
+            const cppelapsedtime = Date.now() - cppstarttime
             if (err) {
               console.log("ERROR " + err);
               resolve({
@@ -46,6 +49,7 @@ exports.CplusplusRunner = async (code, input) => {
             resolve({
               err: false,
               output: stdout,
+              time:cppelapsedtime
             });
           });
         });
@@ -87,7 +91,9 @@ exports.CRunner = async (code, input) => {
           }
 
           console.log("Compilation done");
+          const cstarttime = Date.now()
           exec("./a.out < " + "inputa.txt", (err, stdout, stderr) => {
+            const celapsedtime = Date.now() - cstarttime
             if (err) {
               console.log("error " + err);
               resolve({
@@ -101,6 +107,7 @@ exports.CRunner = async (code, input) => {
             resolve({
               err: false,
               output: stdout,
+              time: celapsedtime
             });
           });
         });
@@ -135,9 +142,12 @@ exports.PythonRunner = async (code, input) => {
         const filePath = path.join(__dirname, "../c.py");
         console.log("python file -> " + filePath);
         const inputPath = path.join(__dirname, "../inputc.txt");
+        const pythonstartTime = Date.now();
         exec(
           "python3 " + filePath + " < " + inputPath,
           (err, stdout, stderr) => {
+            const pythonelapsedtime = Date.now() - pythonstartTime;
+           console.log(pythonelapsedtime);
             if (err) {
               console.error(`exec error: ${err}`);
               resolve({
@@ -146,9 +156,11 @@ exports.PythonRunner = async (code, input) => {
                 error: stderr,
               });
             }
+            
             resolve({
               err: false,
               output: stdout,
+              time: pythonelapsedtime
             });
           }
         );
@@ -183,7 +195,10 @@ exports.JavaScriptRunner = async (code, input) => {
         const filePath = path.join(__dirname, "../d.js");
         console.log("javascript file -> " + filePath);
         const inputPath = path.join(__dirname, "../inputd.txt");
+        const javascriptstarttime = Date.now()
         exec("node " + filePath + " < " + inputPath, (err, stdout, stderr) => {
+          const jselapsedtime = Date.now() - javascriptstarttime;
+          console.log(jselapsedtime);
           if (err) {
             console.error(`exec error: ${err}`);
             resolve({
@@ -195,6 +210,7 @@ exports.JavaScriptRunner = async (code, input) => {
           resolve({
             err: false,
             output: stdout,
+            time: jselapsedtime
           });
         });
       })
@@ -239,8 +255,9 @@ exports.JavaRunner = async (code, input) => {
           }
 
           console.log("Compilation successful");
-
+          const javastarttime = Date.now()
           exec("java Main < input.txt", (err, stdout, stderr) => {
+            const javaelapsedtime = Date.now() - javastarttime
             if (err) {
               console.error("Execution error:", err);
               resolve({ err: true, output: err });
@@ -248,7 +265,7 @@ exports.JavaRunner = async (code, input) => {
             }
 
             console.log("Execution successful");
-            resolve({ err: false, output: stdout });
+            resolve({ err: false, output: stdout, time:javaelapsedtime});
           });
         });
       });
