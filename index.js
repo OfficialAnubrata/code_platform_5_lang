@@ -7,7 +7,8 @@ const cors = require("cors");
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(express.static("./client/build"));
+
+
 
 app.use("/api/v1", Submitrouter);
 

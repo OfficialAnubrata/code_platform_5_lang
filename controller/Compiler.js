@@ -135,9 +135,12 @@ exports.PythonRunner = async (code, input) => {
         const filePath = path.join(__dirname, "../c.py");
         console.log("python file -> " + filePath);
         const inputPath = path.join(__dirname, "../inputc.txt");
+        const startTime = Date.now();
         exec(
           "python3 " + filePath + " < " + inputPath,
           (err, stdout, stderr) => {
+            const elapsedTime = Date.now() - startTime;
+
             if (err) {
               console.error(`exec error: ${err}`);
               resolve({
@@ -146,9 +149,11 @@ exports.PythonRunner = async (code, input) => {
                 error: stderr,
               });
             }
+
             resolve({
               err: false,
               output: stdout,
+              time: elapsedTime,
             });
           }
         );
@@ -183,20 +188,23 @@ exports.JavaScriptRunner = async (code, input) => {
         const filePath = path.join(__dirname, "../d.js");
         console.log("javascript file -> " + filePath);
         const inputPath = path.join(__dirname, "../inputd.txt");
-        exec("node " + filePath + " < " + inputPath, (err, stdout, stderr) => {
-          if (err) {
-            console.error(`exec error: ${err}`);
+        exec(
+          "node " + filePath + " < " + inputPath,
+          (err, stdout, stderr) => {
+            if (err) {
+              console.error(`exec error: ${err}`);
+              resolve({
+                err: true,
+                output: err,
+                error: stderr,
+              });
+            }
             resolve({
-              err: true,
-              output: err,
-              error: stderr,
+              err: false,
+              output: stdout,
             });
           }
-          resolve({
-            err: false,
-            output: stdout,
-          });
-        });
+        );
       })
       .catch(() => {
         console.log("error saving javascript file \n" + saveFileRes);
