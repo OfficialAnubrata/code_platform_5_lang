@@ -1,6 +1,12 @@
-{
+[
+  {
     "code": "console.log('hello')",
     "input": "null",
     "lang": "javascript"
+  },
+  {
+    "code": "const number = 9;\n\nconst result = Math.sqrt(number);\nconsole.log(`The square root of ${number} is ${result}`);",
+    "input": "null",
+    "lang": "javascript"
   }
-  
+]
