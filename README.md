@@ -42,7 +42,7 @@ apt install python3 -y
 ```
 ### step 7: After Entering Directory
 ```bash
-cd directory_name
+cd "directory_name"
 npm i
 npm start
 ```
