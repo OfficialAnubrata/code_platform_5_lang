@@ -20,8 +20,9 @@ exports.CplusplusRunner = async (code, input) => {
 
         const filePath = path.join(__dirname, "../b.cpp");
         console.log("cpp file -> " + filePath);
-
+        const startTime=Date.now();
         exec("sudo g++ " + filePath, (err, stdout, stderr) => {
+          const elapsedTime=Date.now() - startTime
           if (err) {
             console.error(`exec error: ${err}`);
             resolve({
@@ -46,6 +47,7 @@ exports.CplusplusRunner = async (code, input) => {
             resolve({
               err: false,
               output: stdout,
+              time:elapsedTime
             });
           });
         });
@@ -75,8 +77,9 @@ exports.CRunner = async (code, input) => {
 
         const filePath = path.join(__dirname, "../a.c");
         console.log("c file -> " + filePath);
-
+        const startTime=Date.now()
         exec("gcc " + filePath, (err, stdout, stderr) => {
+          const elapsedTime=Date.now() - startTime
           if (err) {
             console.error(`exec error: ${err}`);
             resolve({
@@ -101,6 +104,7 @@ exports.CRunner = async (code, input) => {
             resolve({
               err: false,
               output: stdout,
+              time:elapsedTime
             });
           });
         });
@@ -188,9 +192,11 @@ exports.JavaScriptRunner = async (code, input) => {
         const filePath = path.join(__dirname, "../d.js");
         console.log("javascript file -> " + filePath);
         const inputPath = path.join(__dirname, "../inputd.txt");
+        const startTime = Date.now();
         exec(
           "node " + filePath + " < " + inputPath,
           (err, stdout, stderr) => {
+            const elapsedTime = Date.now() - startTime;
             if (err) {
               console.error(`exec error: ${err}`);
               resolve({
@@ -202,6 +208,7 @@ exports.JavaScriptRunner = async (code, input) => {
             resolve({
               err: false,
               output: stdout,
+              time: elapsedTime,
             });
           }
         );
@@ -239,24 +246,30 @@ exports.JavaRunner = async (code, input) => {
         }
 
         console.log("Java file written:", fileName);
+        const startTime = Date.now();
         exec("javac " + fileName, (err, stdout, stderr) => {
+          const elapsedTime = Date.now() - startTime;
           if (err) {
+            
+           
             console.error("Compilation error:", err);
             resolve({ err: true, output: err });
             return;
           }
 
           console.log("Compilation successful");
-
+          
           exec("java Main < input.txt", (err, stdout, stderr) => {
+           
             if (err) {
+              
               console.error("Execution error:", err);
               resolve({ err: true, output: err });
               return;
             }
 
             console.log("Execution successful");
-            resolve({ err: false, output: stdout });
+            resolve({ err: false, output: stdout ,time:elapsedTime});
           });
         });
       });
