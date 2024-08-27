@@ -2,39 +2,38 @@ const fs = require("fs");
 const { exec } = require("child_process");
 const path = require("path");
 
-exports.CplusplusRunner = async (code, input) => {
+exports.CplusplusRunner = async (code, input, randomfilename) => {
   const res = {
     err: false,
     msg: "",
   };
   return new Promise((resolve, reject) => {
-    const fileName = "b.cpp";
+    const fileName = `${randomfilename}.cpp`;
     saveFile(fileName, code)
       .then(() => {
-        fs.writeFile("inputb.txt", input, function (err) {
+        fs.writeFile(`${randomfilename}.txt`, input, function (err) {
           if (err) {
             console.log(err);
             reject();
           }
         });
 
-        const filePath = path.join(__dirname, "../b.cpp");
+        const filePath = path.join(__dirname, `../${randomfilename}.cpp`);
         console.log("cpp file -> " + filePath);
+        const startTime = Date.now();
 
-        exec("sudo g++ " + filePath, (err, stdout, stderr) => {
-          if (err) {
-            console.error(`exec error: ${err}`);
-            resolve({
-              err: true,
-              output: err,
-              error: stderr,
-            });
-          }
+        // Generate a random executable name
+        const randomExecName = `${Math.random()
+          .toString(36)
+          .substring(2, 15)}.out`; // Avoid potential conflicts
 
-          console.log("compilation done..");
-          exec("sudo ./a.out < " + "inputb.txt", (err, stdout, stderr) => {
+        // Compile with the random executable name
+        exec(
+          `sudo g++ -o ${randomfilename} ${filePath}`,
+          (err, stdout, stderr) => {
+            const elapsedTime = Date.now() - startTime;
             if (err) {
-              console.log("ERROR " + err);
+              console.error(`exec error: ${err}`);
               resolve({
                 err: true,
                 output: err,
@@ -42,13 +41,42 @@ exports.CplusplusRunner = async (code, input) => {
               });
             }
 
-            console.log("output \n ", stdout);
-            resolve({
-              err: false,
-              output: stdout,
-            });
-          });
-        });
+            console.log("compilation done..");
+
+            // Execute the renamed executable
+            exec(
+              `sudo ./${randomfilename} < ${randomfilename}.txt`,
+              (err, stdout, stderr) => {
+                if (err) {
+                  console.log("ERROR " + err);
+                  resolve({
+                    err: true,
+                    output: err.cmd,
+                    error: stderr,
+                  });
+                }
+                if (stdout.endsWith("\n")) {
+                  console.log("output \n ", stdout);
+                  resolve({
+                    err: false,
+                    output: stdout.slice(0, -1),
+                    time: elapsedTime,
+                  });
+                } else {
+                  console.log("output: \n ", stdout);
+                  resolve({
+                    err: false,
+                    output: stdout,
+                    time: elapsedTime,
+                  });
+                }
+
+                // Optionally clean up the temporary executable (consider security implications)
+                // fs.unlinkSync(randomExecName); // Uncomment if desired
+              }
+            );
+          }
+        );
       })
       .catch((e) => {
         console.log("error saving file " + e);
@@ -61,57 +89,85 @@ exports.CplusplusRunner = async (code, input) => {
   });
 };
 
-exports.CRunner = async (code, input) => {
+exports.CRunner = async (code, input, randomfilenameforc) => {
   return new Promise((resolve, reject) => {
-    const fileName = "a.c";
-    saveFile(fileName, code)
+    const cFileName = `${randomfilenameforc}.c`;
+    const cFilePath = path.join(__dirname, `../${cFileName}`);
+    
+    
+    saveFile(cFilePath, code)
       .then(() => {
-        fs.writeFile("inputa.txt", input, function (err) {
+        
+        const inputFilePath = `${randomfilenameforc}.txt`;
+        fs.writeFile(inputFilePath, input, function (err) {
           if (err) {
             console.log(err);
-            reject();
-          }
-        });
-
-        const filePath = path.join(__dirname, "../a.c");
-        console.log("c file -> " + filePath);
-
-        exec("gcc " + filePath, (err, stdout, stderr) => {
-          if (err) {
-            console.error(`exec error: ${err}`);
-            resolve({
-              err: true,
-              output: err,
-              error: stderr,
-            });
+            reject(err);
           }
 
-          console.log("Compilation done");
-          exec("./a.out < " + "inputa.txt", (err, stdout, stderr) => {
+          console.log("Input file saved: " + inputFilePath);
+
+          
+          const execName = `${randomfilenameforc}.out`;
+          const compileCommand = `gcc -o ${execName} ${cFilePath}`;
+
+          console.log("Compiling with command: " + compileCommand);
+
+          const startTime = Date.now();
+          exec(compileCommand, (err, stdout, stderr) => {
+            const compileTime = Date.now() - startTime;
             if (err) {
-              console.log("error " + err);
+              console.error(`Compilation error: ${err}`);
               resolve({
                 err: true,
-                output: err,
+                output: err.message,
                 error: stderr,
+                time: compileTime,
+              });
+            } else {
+              console.log("Compilation successful.");
+
+              
+              const executeCommand = `./${execName} < ${inputFilePath}`;
+              console.log("Executing with command: " + executeCommand);
+
+              const execStartTime = Date.now();
+              exec(executeCommand, (err, stdout, stderr) => {
+                const execTime = Date.now() - execStartTime;
+                if (err) {
+                  console.error(`Execution error: ${err}`);
+                  resolve({
+                    err: true,
+                    output: err.message,
+                    error: stderr,
+                    time: execTime,
+                  });
+                } else {
+                  console.log("Execution successful.");
+                  const output = stdout.trim(); 
+
+                  resolve({
+                    err: false,
+                    output: output,
+                    time: execTime,
+                  });
+                }
+
+               
+                // fs.unlinkSync(cFilePath); // Uncomment if desired
+                // fs.unlinkSync(inputFilePath); // Uncomment if desired
+                // fs.unlinkSync(execName); // Uncomment if desired
               });
             }
-
-            console.log("output: \n ", stdout);
-            resolve({
-              err: false,
-              output: stdout,
-            });
           });
         });
       })
-      .catch(() => {
-        console.log("error while saving the file \n" + saveFileRes);
-        const err = {
+      .catch((err) => {
+        console.error("Error saving files: ", err);
+        resolve({
           err: true,
-          output: "Internal Server Error!",
-        };
-        resolve(err);
+          output: "Internal Server Error",
+        });
       });
   });
 };
@@ -145,16 +201,23 @@ exports.PythonRunner = async (code, input) => {
               console.error(`exec error: ${err}`);
               resolve({
                 err: true,
-                output: err,
+                output: err.cmd,
                 error: stderr,
               });
             }
-
-            resolve({
-              err: false,
-              output: stdout,
-              time: elapsedTime,
-            });
+            if (stdout.endsWith("\n")) {
+              resolve({
+                err: false,
+                output: stdout.slice(0, -1),
+                time: elapsedTime,
+              });
+            } else {
+              resolve({
+                err: false,
+                output: stdout,
+                time: elapsedTime,
+              });
+            }
           }
         );
       })
@@ -188,23 +251,31 @@ exports.JavaScriptRunner = async (code, input) => {
         const filePath = path.join(__dirname, "../d.js");
         console.log("javascript file -> " + filePath);
         const inputPath = path.join(__dirname, "../inputd.txt");
-        exec(
-          "node " + filePath + " < " + inputPath,
-          (err, stdout, stderr) => {
-            if (err) {
-              console.error(`exec error: ${err}`);
-              resolve({
-                err: true,
-                output: err,
-                error: stderr,
-              });
-            }
+        const startTime = Date.now();
+        exec("node " + filePath + " < " + inputPath, (err, stdout, stderr) => {
+          const elapsedTime = Date.now() - startTime;
+          if (err) {
+            console.error(`exec error: ${err}`);
+            resolve({
+              err: true,
+              output: err.cmd,
+              error: stderr,
+            });
+          }
+          if (stdout.endsWith("\n")) {
+            resolve({
+              err: false,
+              output: stdout.slice(0, -1),
+              time: elapsedTime,
+            });
+          } else {
             resolve({
               err: false,
               output: stdout,
+              time: elapsedTime,
             });
           }
-        );
+        });
       })
       .catch(() => {
         console.log("error saving javascript file \n" + saveFileRes);
@@ -217,48 +288,73 @@ exports.JavaScriptRunner = async (code, input) => {
   });
 };
 
-exports.JavaRunner = async (code, input) => {
+exports.JavaRunner = async (code, input, randomfilenameforjava) => {
   const res = {
     err: false,
     msg: "",
   };
   return new Promise((resolve, reject) => {
-    const fileName = "Main.java";
+  
+
+    
+    const tempDir = path.join(__dirname, `${randomfilenameforjava}`);
+    fs.mkdirSync(tempDir, { recursive: true });
+
+    const fileName = path.join(tempDir, "Main.java");
+
+    
     fs.writeFile(fileName, code, (err) => {
       if (err) {
         console.error("Error writing Java file:", err);
+        fs.rmdirSync(tempDir, { recursive: true }); 
         reject({ err: true, output: "Error writing Java file" });
         return;
       }
 
-      fs.writeFile("input.txt", input, (err) => {
+      
+      const inputFile = path.join(tempDir, "input.txt");
+      fs.writeFile(inputFile, input, (err) => {
         if (err) {
           console.error("Error writing input file:", err);
+          fs.rmdirSync(tempDir, { recursive: true }); 
           reject({ err: true, output: "Error writing input file" });
           return;
         }
 
         console.log("Java file written:", fileName);
-        exec("javac " + fileName, (err, stdout, stderr) => {
-          if (err) {
-            console.error("Compilation error:", err);
-            resolve({ err: true, output: err });
-            return;
-          }
+        const startTime = Date.now();
 
-          console.log("Compilation successful");
-
-          exec("java Main < input.txt", (err, stdout, stderr) => {
+        
+        exec(
+          `javac ${fileName} && cd ${tempDir} && java Main < ${inputFile}`,
+          (err, stdout, stderr) => {
+            const elapsedTime = Date.now() - startTime;
             if (err) {
-              console.error("Execution error:", err);
-              resolve({ err: true, output: err });
+              console.error("Compilation/Execution error:", err);
+              fs.rmdirSync(tempDir, { recursive: true }); 
+              resolve({ err: true, output: err.cmd, error: stderr });
               return;
             }
 
             console.log("Execution successful");
-            resolve({ err: false, output: stdout });
-          });
-        });
+            if (stdout.endsWith("\n")) {
+              resolve({
+                err: false,
+                output: stdout.slice(0, -1),
+                time: elapsedTime,
+              });
+            } else {
+              resolve({
+                err: false,
+                output: stdout,
+                time: elapsedTime,
+              });
+            }
+
+            
+            fs.rmdirSync(tempDir, { recursive: true });
+          }
+        );
       });
     });
   });

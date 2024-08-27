@@ -8,5 +8,11 @@
     "code": "const number = 9;\n\nconst result = Math.sqrt(number);\nconsole.log(`The square root of ${number} is ${result}`);",
     "input": "null",
     "lang": "javascript"
+  },
+  {
+    "code": "const readline = require('readline');\n\nconst rl = readline.createInterface({\n  input: process.stdin,\n  output: process.stdout\n});\nrl.prompt();\nrl.on('line', (age) => {\n  console.log(`Age received by the user: ${age}`);\n  rl.close();\n});",
+    "input": "16",
+    "lang": "javascript"
   }
+  
 ]
